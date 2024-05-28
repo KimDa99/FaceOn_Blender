@@ -1,0 +1,14 @@
+.obsidian/
+.vs/
+x64/
+Debug/
+
+data/
+
+*.tlog
+*.recipe
+*.idb
+*.filters
+*.user
+*.sln
+*.vcxproj
