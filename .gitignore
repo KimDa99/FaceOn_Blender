@@ -12,3 +12,4 @@ data/
 *.user
 *.sln
 *.vcxproj
+*.pyc
