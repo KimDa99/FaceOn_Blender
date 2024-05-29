@@ -1,4 +1,5 @@
 """
+"""
 import GetSamples
 GetSamples.OpenTarGz('FaceOn/data/part1.tar.gz', 'FaceOn/data/samples')
 GetSamples.OpenTarGz('FaceOn/data/part2.tar.gz', 'FaceOn/data/samples')
@@ -25,7 +26,6 @@ CombineColorNormalizedPoints.combineNormalizedPoints('FaceOn/data/normalized', '
 
 print('Done3')
 
-"""
 import CalculateFeatures
 CalculateFeatures.SaveBatchValues('FaceOn/data/combined_Normalized', 'FaceOn/data/numbers')
 

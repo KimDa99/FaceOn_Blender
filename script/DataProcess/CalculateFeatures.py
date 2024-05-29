@@ -24,9 +24,15 @@ eye_below_right_indexes = [163, 144, 145, 153, 154]
 eye_below_left_indexes = [390, 373, 374, 380, 381]
 
 # brows
+brow_right_indexes = [70, 63, 105, 66, 107, 
+                      46, 53, 52, 65, 55,]
+brow_left_indexes = [276, 283, 282, 295, 285,
+                     300, 293, 334, 296, 336]
+
 brow_start_left_indexs = [336, 285]
 brow_arch_left_indexs = [334, 282]
 brow_end_left_indexs = [300, 276]
+
 brow_start_right_indexs = [107, 55]
 brow_arch_right_indexs = [105, 52]
 brow_end_right_indexs = [70, 46]
@@ -221,8 +227,8 @@ def GetEyeDegree(points):
     return right_eye_degree + left_eye_degree
 
 def GetBrowBetween(points):
-    right_brow = points[brow_start_right_indexs[0]] + points[brow_start_right_indexs[1]]
-    left_brow = points[brow_start_left_indexs[0]] + points[brow_start_left_indexs[1]]
+    right_brow = points[brow_start_right_indexs].mean(axis=0)
+    left_brow = points[brow_start_left_indexs].mean(axis=0)
     return GetLength(right_brow, left_brow)
 
 def GetBrowFront(points):
@@ -244,35 +250,57 @@ def GetBrowBack(points):
     return GetLength(right_backs, right_archs) + GetLength(left_backs, left_archs)
 
 def GetBrowDegree(points):
-    right_brow = points[brow_start_right_indexs[0]] - points[brow_end_right_indexs[0]]
-    left_brow = points[brow_start_left_indexs[0]] - points[brow_end_left_indexs[0]]
+    right_brow = points[brow_start_right_indexs].mean(axis=0) - points[brow_end_right_indexs].mean(axis=0)
+    left_brow = points[brow_start_left_indexs].mean(axis=0) - points[brow_end_left_indexs].mean(axis=0)
     right_brow[0] = 0
     left_brow[0] = 0
 
     return GetDegreeBetweenVectorXYPlane(right_brow) + GetDegreeBetweenVectorXYPlane(left_brow)
 
 def GetBrowThickness(points):
+
     right_fronts = GetLength(points[brow_start_right_indexs[0]], points[brow_start_right_indexs[1]])
     right_archs = GetLength(points[brow_arch_right_indexs[0]], points[brow_arch_right_indexs[1]])
 
     left_fronts = GetLength(points[brow_start_left_indexs[0]], points[brow_start_left_indexs[1]])
     left_archs = GetLength(points[brow_arch_left_indexs[0]], points[brow_arch_left_indexs[1]])
 
-    return right_fronts + right_archs + left_fronts + left_archs
+    return max(right_fronts, right_archs) + max(left_fronts, left_archs)
 
 def GetBrowShape(points):
-    right_arch = points[brow_arch_right_indexs[0]] + points[brow_arch_right_indexs[1]]
-    right_start = points[brow_start_right_indexs[0]] + points[brow_start_right_indexs[1]]
-    right_end = points[brow_end_right_indexs[0]] + points[brow_end_right_indexs[1]]
+    r_max_arch = 0
+    r_max_arch_index = 0
+    for i in range(len(brow_right_indexes)):
+        length = GetLengthBetweenPointLine(points[brow_right_indexes[i]], points[brow_start_right_indexs[-1]], points[brow_end_right_indexs[-1]])
+        if length > r_max_arch:
+            r_max_arch = length
+            r_max_arch_index = i
 
-    left_arch = points[brow_arch_left_indexs[0]] + points[brow_arch_left_indexs[1]]
-    left_start = points[brow_start_left_indexs[0]] + points[brow_start_left_indexs[1]]
-    left_end = points[brow_end_left_indexs[0]] + points[brow_end_left_indexs[1]]
+    l_max_arch = 0
+    l_max_arch_index = 0
+    for i in range(len(brow_left_indexes)):
+        length = GetLengthBetweenPointLine(points[brow_left_indexes[i]], points[brow_start_left_indexs[-1]], points[brow_end_left_indexs[-1]])
+        if length > l_max_arch:
+            l_max_arch = length
+            l_max_arch_index = i
 
-    right_shape = GetLengthBetweenPointLine(right_arch, right_start, right_end) / GetLength(right_start, right_end)
-    left_shape = GetLengthBetweenPointLine(left_arch, left_start, left_end) / GetLength(left_start, left_end)
+    r_archPosition = GetProportion(points[brow_right_indexes[r_max_arch_index]], points[brow_start_right_indexs[-1]], points[brow_end_right_indexs[-1]])
+    l_archPosition = GetProportion(points[brow_left_indexes[l_max_arch_index]], points[brow_start_left_indexs[-1]], points[brow_end_left_indexs[-1]])
 
-    return right_shape + left_shape
+    return r_max_arch + l_max_arch, r_archPosition + l_archPosition
+
+def GetBrowArchPosition(points):
+    right_brow = points[brow_right_indexes]
+    right_brow = right_brow[:,1:]
+    right_brow_point_index = GetMaxAngleIndex(right_brow)
+    right_brow_point_index = brow_right_indexes[right_brow_point_index]
+
+    left_brow = points[brow_left_indexes]
+    left_brow = left_brow[:,1:]
+    left_brow_point_index = GetMaxAngleIndex(left_brow)
+    left_brow_point_index = brow_left_indexes[left_brow_point_index]
+
+    return right_brow_point_index, left_brow_point_index
 
 def GetNoseLength(points):
     nose_start = points[nose_start_index]
@@ -393,44 +421,48 @@ def ExtractFeatures(points, colors):
         print("out of Symeetry: " + f'{symmetry}')
         return None
 
-    # dict.update({"symmetry": symmetry})
-    # dict.update({"eyeBetween": GetEyeBetween(points)})
-    # dict.update({"eyeFront": GetEyeFront(points)})
-    # dict.update({"eyeBack": GetEyeBack(points)})
-    # dict.update({"eyeLength": GetEyeLength(points)})
-    # dict.update({"eyeAbove": GetEyeAbove(points)})
-    # dict.update({"eyeBelow": GetEyeBelow(points)})
-    # dict.update({"eyeDegree": GetEyeDegree(points)})
+    dict.update({"symmetry": symmetry})
+    dict.update({"eyeBetween": GetEyeBetween(points)})
+    dict.update({"eyeFront": GetEyeFront(points)})
+    dict.update({"eyeBack": GetEyeBack(points)})
+    dict.update({"eyeLength": GetEyeLength(points)})
+    dict.update({"eyeAbove": GetEyeAbove(points)})
+    dict.update({"eyeBelow": GetEyeBelow(points)})
+    dict.update({"eyeDegree": GetEyeDegree(points)})
 
-    # dict.update({"browBetween": GetBrowBetween(points)})
-    # dict.update({"browFront": GetBrowFront(points)})
-    # dict.update({"browBack": GetBrowBack(points)})
-    # dict.update({"browDegree": GetBrowDegree(points)})
-    # dict.update({"browThickness": GetBrowThickness(points)})
-    # dict.update({"browShape": GetBrowShape(points)})
+    dict.update({"browBetween": GetBrowBetween(points)})
+    dict.update({"browFront": GetBrowFront(points)})
+    dict.update({"browBack": GetBrowBack(points)})
+    dict.update({"browDegree": GetBrowDegree(points)})
+    print(f'browDegree: {GetBrowDegree(points)}')
+    dict.update({"browThickness": GetBrowThickness(points)})
+    print(f'browThickness: {GetBrowThickness(points)}')
+    browArchHeight, browArchPosition = GetBrowShape(points)
+    print(f'browShape: {browArchHeight}')
+    dict.update({"browShape": browArchHeight})
+    dict.update({"browArchPosition": browArchPosition})
 
-    # dict.update({"noseLength": GetNoseLength(points)})
-    # dict.update({"noseBridgeThickness": GetNoseBridgeThickness(points)})
-    # dict.update({"noseHeadThickness": GetNoseHeadThickness(points)})
-    # dict.update({"noseAlar": GetNoseAlar(points)})
-    # dict.update({"philtrum": GetPhiltrum(points)})
+    dict.update({"noseLength": GetNoseLength(points)})
+    dict.update({"noseBridgeThickness": GetNoseBridgeThickness(points)})
+    dict.update({"noseHeadThickness": GetNoseHeadThickness(points)})
+    dict.update({"noseAlar": GetNoseAlar(points)})
+    dict.update({"philtrum": GetPhiltrum(points)})
 
-    # dict.update({"lipLength": GetLipLength(points)})
-    # dict.update({"upperLipThickness": GetUpperLipThickness(points)})
-    # dict.update({"lowerLipThickness": GetLowerLipThickness(points)})
+    dict.update({"lipLength": GetLipLength(points)})
+    dict.update({"upperLipThickness": GetUpperLipThickness(points)})
+    dict.update({"lowerLipThickness": GetLowerLipThickness(points)})
 
-    # dict.update({"foreheadLength": GetForeheadLength(points)})
+    dict.update({"foreheadLength": GetForeheadLength(points)})
     dict.update({"midfaceLength": GetMidFaceLength(points)})
-    print(f"midfaceLength: {dict['midfaceLength']}")
 
-    # dict.update({"chinLength": GetChinLength(points)})
-    # dict.update({"chinWidth": GetChinWidth(points)})
+    dict.update({"chinLength": GetChinLength(points)})
+    dict.update({"chinWidth": GetChinWidth(points)})
 
-    # dict.update({"jawWide": GetJawWide(points)})
-    # dict.update({"jawPosition": GetJawPosition(points)})
+    dict.update({"jawWide": GetJawWide(points)})
+    dict.update({"jawPosition": GetJawPosition(points)})
 
-    # dict.update({"skinColor": GetSkinColor(colors)})
-    # dict.update({"lipColor": GetLipColor(colors)})
+    dict.update({"skinColor": GetSkinColor(colors)})
+    dict.update({"lipColor": GetLipColor(colors)})
     return dict
 
 def printFeatures(dicts):

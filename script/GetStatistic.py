@@ -25,7 +25,8 @@ def removeOutliersNoises(values):
     filtered_values = [v for v in values if v >= lower_bound and v <= upper_bound]
     
     return filtered_values
- 
+
+
 def normalizeData(values):
     # Max value: 1, Min value: 0
     max_val = np.max(values)
@@ -107,17 +108,16 @@ def SaveImage(source_path, target_path, order = -1):
 
 
 dicts = load_dict('FaceOn/data/Gathered_Features.pickle')
+dicts = dicts.copy()
 
 print(dicts.keys())
 for key in dicts:
     if key == 'fileNames' or key == 'skinColor' or key == 'lipColor' or key == 'symmetry':
         continue
     
-    print(len(dicts[key]))
 
     # showPlt(dicts[key], key)
     # values = removeOutliersNoises(dicts[key])
-    values = dicts[key]
     values = normalizeData(values)
     # showPlt(values, f'Normalized {key}')
 
