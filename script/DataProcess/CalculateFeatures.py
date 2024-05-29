@@ -302,6 +302,11 @@ def GetForeheadLength(points):
 def GetChinLength(points):
     return GetVectorLength(points[bottom_lip_bottom_index] - points[chin_end_index])
 
+def GetChinWidth(points):
+    right_jaw = points[jaw_right_indexs[1]] + points[jaw_right_indexs[2]] - 2*points[temple_right_index]
+    left_jaw = points[jaw_left_indexs[1]] + points[jaw_left_indexs[2]] - 2*points[temple_left_index]
+    return abs(right_jaw[1]) + abs(left_jaw[1])
+
 def GetJawPointsIndex(points):
     right_jaw_points = points[jaw_right_indexs]
     right_jaw_points = right_jaw_points[:,1:]
@@ -387,9 +392,10 @@ def ExtractFeatures(points, colors):
     # dict.update({"foreheadLength": GetForeheadLength(points)})
 
     # dict.update({"chinLength": GetChinLength(points)})
+    dict.update({"chinWidth": GetChinWidth(points)})
 
     # dict.update({"jawWide": GetJawWide(points)})
-    dict.update({"jawPosition": GetJawPosition(points)})
+    # dict.update({"jawPosition": GetJawPosition(points)})
 
     # dict.update({"skinColor": GetSkinColor(colors)})
     # dict.update({"lipColor": GetLipColor(colors)})

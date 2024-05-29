@@ -32,6 +32,7 @@ lowerLipThickness = []
 
 foreheadLength = []
 chinLength = []
+chinWidth = []
 
 jawWide = []
 jawPosition = []
@@ -75,8 +76,9 @@ def LoadValues(path):
 
     # foreheadLength.append(dicts['foreheadLength'])
     # chinLength.append(dicts['chinLength'])
+    chinWidth.append(dicts['chinWidth'])
 
-    jawWide.append(dicts['jawWide'])
+    # jawWide.append(dicts['jawWide'])
     # jawPosition.append(dicts['jawPosition'])
 
     # skinColor.append(dicts['skinColor'])
@@ -119,8 +121,9 @@ def SaveValues(pathName = 'FaceOn/data/numbers/All.pickle'):
 
         # 'foreheadLength': foreheadLength,
         # 'chinLength': chinLength,
+        'chinWidth': chinWidth,
 
-        'jawWide': jawWide,
+        # 'jawWide': jawWide,
         # 'jawPosition': jawPosition,
 
         # 'skinColor': skinColor,
