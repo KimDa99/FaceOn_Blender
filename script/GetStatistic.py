@@ -139,7 +139,7 @@ for key in dicts:
     values = normalizeData(values)
     # showPlt(values, f'Normalized {key}')
 
-    n = (1.5/100) * len(values)
+    n = (1/100) * len(values)
     n = int(n)
     print(n)
     min_indexes, max_indexes = GetMinMaxIndexes(values, n)
@@ -154,10 +154,28 @@ for key in dicts:
     if not os.path.exists('FaceOn/data/examples'):
         os.makedirs('FaceOn/data/examples')
 
-    for i in range(n):
-        SaveImage(GetImagePath(dicts['fileNames'][min_indexes[i]]), min_path, i)
-        SaveImage(GetImagePath(dicts['fileNames'][max_indexes[i]]), max_path, i)
+    # for i in range(n):
+    #     SaveImage(GetImagePath(dicts['fileNames'][min_indexes[i]]), min_path, i)
+    #     SaveImage(GetImagePath(dicts['fileNames'][max_indexes[i]]), max_path, i)
     
-    showPlt(values, f'Normalized {key}')
+    min_file_names = [dicts['fileNames'][i] for i in min_indexes]
+    max_file_names = [dicts['fileNames'][i] for i in max_indexes]
+
+    # save min and max file names as numpy files
+    target_path = 'FaceOn/data/min_max_file_names/'
+    if not os.path.exists(target_path):
+        os.makedirs(target_path)
+
+    target_path = 'FaceOn/data/min_max_file_names/' + key + '/'
+    if not os.path.exists(target_path):
+        os.makedirs(target_path)
+
+    np.save(target_path + 'min.npy', min_file_names)
+    np.save(target_path + 'max.npy', max_file_names)
+
+    # showPlt(dicts[key], key)
+    # values = removeOutliersNoises(dicts[key])        
+
+    # showPlt(values, f'Normalized {key}')
 
     cv.waitKey(0)
