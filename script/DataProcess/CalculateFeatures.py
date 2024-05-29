@@ -303,8 +303,8 @@ def GetChinLength(points):
     return GetVectorLength(points[bottom_lip_bottom_index] - points[chin_end_index])
 
 def GetChinWidth(points):
-    right_jaw = points[jaw_right_indexs[1]] + points[jaw_right_indexs[2]] - 2*points[temple_right_index]
-    left_jaw = points[jaw_left_indexs[1]] + points[jaw_left_indexs[2]] - 2*points[temple_left_index]
+    right_jaw = points[jaw_right_indexs[2]] - points[chin_end_index]
+    left_jaw = points[jaw_left_indexs[2]] - points[chin_end_index]
     return abs(right_jaw[1]) + abs(left_jaw[1])
 
 def GetJawPointsIndex(points):
