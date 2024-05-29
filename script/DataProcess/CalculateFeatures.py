@@ -52,13 +52,19 @@ lip_right_end_index = 61
 lip_left_end_index = 291
 
 # Nose
-nose_bridge_indexs = [168, 6, 197, 195, 5, 4, 1, 19, 94]
-nose_bridge_right_indexs = [193, 122, 196, 3, 51, 45, 44, 125, 141]
-nose_bridge_left_indexs = [417, 351, 419, 248, 281, 275, 274, 354, 370]
+nose_bridge_indexs = [168, 6, 197, 195]
+nose_bridge_right_indexs = [193, 122, 196, 3]
+nose_bridge_left_indexs = [417, 351, 419, 248]
+
+nose_head_indexs = [5, 4, 1, 19, 94]
+nose_head_right_indexs = [ 51, 45, 44, 125, 141]
+nose_head_left_indexs = [ 281, 275, 274, 354, 370]
+
 
 nose_right_index = 64
 nose_left_index = 294
 nose_end_index = 94
+nose_end_middle_index = 19
 nose_start_index = 168
 
 # forehead
@@ -262,15 +268,25 @@ def GetBrowShape(points):
     return right_shape + left_shape
 
 def GetNoseLength(points):
-    nose_start = points[nose_start_index][2]
-    nose_end = points[nose_end_index][2]
+    nose_start = points[nose_start_index]
+    nose_end = points[nose_end_middle_index]
 
-    return nose_end - nose_start
+    return GetLength(nose_end, nose_start)
 
 def GetNoseBridgeThickness(points):
     nose_bridge_right = points[nose_bridge_indexs] - points[nose_bridge_right_indexs]
     nose_bridge_left = points[nose_bridge_indexs] - points[nose_bridge_left_indexs]
-    return GetVectorLength(nose_bridge_right) + GetVectorLength(nose_bridge_left)
+
+    nose_bridge_right = nose_bridge_right.mean(axis=0)
+    nose_bridge_left = nose_bridge_left.mean(axis=0)
+    return abs(nose_bridge_right[1]) + abs(nose_bridge_left[1])
+
+def GetNoseHeadThickness(points):
+    nose_head_right = points[nose_head_indexs] - points[nose_head_right_indexs]
+    nose_head_left = points[nose_head_indexs] - points[nose_head_left_indexs]
+    nose_head_right = nose_head_right.mean(axis=0)
+    nose_head_left = nose_head_left.mean(axis=0)
+    return abs(nose_head_right[1]) + abs(nose_head_left[1])
 
 def GetNoseEndSharpness(points):
 
@@ -380,8 +396,9 @@ def ExtractFeatures(points, colors):
     # dict.update({"browThickness": GetBrowThickness(points)})
     # dict.update({"browShape": GetBrowShape(points)})
 
-    # dict.update({"noseLength": GetNoseLength(points)})
-    # dict.update({"noseBridgeThickness": GetNoseBridgeThickness(points)})
+    dict.update({"noseLength": GetNoseLength(points)})
+    dict.update({"noseBridgeThickness": GetNoseBridgeThickness(points)})
+    dict.update({"noseHeadThickness": GetNoseHeadThickness(points)})
     # dict.update({"noseAlar": GetNoseAlar(points)})
     # dict.update({"philtrum": GetPhiltrum(points)})
 
@@ -392,7 +409,7 @@ def ExtractFeatures(points, colors):
     # dict.update({"foreheadLength": GetForeheadLength(points)})
 
     # dict.update({"chinLength": GetChinLength(points)})
-    dict.update({"chinWidth": GetChinWidth(points)})
+    # dict.update({"chinWidth": GetChinWidth(points)})
 
     # dict.update({"jawWide": GetJawWide(points)})
     # dict.update({"jawPosition": GetJawPosition(points)})
