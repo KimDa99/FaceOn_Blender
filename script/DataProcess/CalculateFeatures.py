@@ -18,6 +18,11 @@ eye_top_right_index = 159
 eye_bottom_left_index = 374
 eye_bottom_right_index = 145
 
+eye_above_right_indexes = [161, 160, 159, 158, 157]
+eye_above_left_indexes = [384, 385, 386, 387, 388]
+eye_below_right_indexes = [163, 144, 145, 153, 154]
+eye_below_left_indexes = [390, 373, 374, 380, 381]
+
 # brows
 brow_start_left_indexs = [336, 285]
 brow_arch_left_indexs = [334, 282]
@@ -73,6 +78,18 @@ jaw_left_indexs = [361, 288, 397]
 temple_right_index = 127
 temple_left_index = 356
 
+# faceOval
+faceOval_right_indexs = [148, 176, 149, 150, 136, 
+                         172, 58, 132, 93, 234,
+                         127, 162, 21, 54, 103, 
+                         67, 109]
+
+faceOval_left_indexs = [ 338, 297, 332, 284, 251, 
+                         389, 356, 454, 323, 361, 
+                         288, 397, 365, 379, 378, 
+                         400, 377]
+face_center_index = 1
+
 def GetVectorLength(vector):
     return np.linalg.norm(vector)
 
@@ -84,6 +101,15 @@ def GetLengthBetweenPointLine(point, line_point0, line_point1):
 
 def GetDegreeBetweenVectorXYPlane(vector):
     return np.arccos(vector[2] / np.linalg.norm(vector))
+
+def GetSymmetry(points):
+    right_points = points[faceOval_right_indexs]
+    left_points = points[faceOval_left_indexs]
+    right_center = np.mean(right_points, axis=0)
+    left_center = np.mean(left_points, axis=0)
+    symVect = 2*points[face_center_index] - right_center - left_center
+    symVect = (0, symVect[1], symVect[2]) 
+    return GetVectorLength(symVect)
 
 def GetSkinColor(colors, n_clusters=3):
     # Apply K-means clustering
@@ -110,7 +136,12 @@ def GetLipColor(colors):
     return mean_color
 
 def GetEyeBetween(points):
-    return GetLength(points[eye_top_right_index], points[eye_top_left_index])
+    return GetLength(points[eye_front_left_index], points[eye_front_right_index])
+
+def GetEyeLength(points):
+    right_length = GetLength(points[eye_front_right_index], points[eye_back_right_index])
+    left_length = GetLength(points[eye_front_left_index], points[eye_back_left_index])
+    return right_length + left_length
 
 def GetEyeFront(points):
     right_front_length = GetLengthBetweenPointLine(points[eye_front_right_index], points[eye_top_right_index], points[eye_bottom_right_index])
@@ -123,26 +154,41 @@ def GetEyeBack(points):
     return right_back_length + left_back_length
 
 def GetEyeAbove(points):
-    right_above_length = GetLengthBetweenPointLine(points[eye_top_right_index], points[eye_front_right_index], points[eye_back_right_index])
-    left_above_length = GetLengthBetweenPointLine(points[eye_top_left_index], points[eye_front_left_index], points[eye_back_left_index])
+    right_above_length = 0
+    left_above_length = 0
+    for i in range(len(eye_above_right_indexes)):
+        right_above_length += GetLengthBetweenPointLine(points[eye_above_right_indexes[i]], points[eye_front_right_index], points[eye_back_right_index])
+        left_above_length += GetLengthBetweenPointLine(points[eye_above_left_indexes[i]], points[eye_front_left_index], points[eye_back_left_index])
     return right_above_length + left_above_length
 
 def GetEyeBelow(points):
-    right_below_length = GetLengthBetweenPointLine(points[eye_bottom_right_index], points[eye_front_right_index], points[eye_back_right_index])
-    left_below_length = GetLengthBetweenPointLine(points[eye_bottom_left_index], points[eye_front_left_index], points[eye_back_left_index])
+    right_below_length = 0
+    left_below_length = 0
+    for i in range(len(eye_below_right_indexes)):
+        right_below_length += GetLengthBetweenPointLine(points[eye_below_right_indexes[i]], points[eye_front_right_index], points[eye_back_right_index])
+        left_below_length += GetLengthBetweenPointLine(points[eye_below_left_indexes[i]], points[eye_front_left_index], points[eye_back_left_index])
     return right_below_length + left_below_length
 
 def GetEyeDegree(points):
     right_eye = points[eye_front_right_index] - points[eye_back_right_index]
+    right_eye = (0, right_eye[1], right_eye[2]) 
+
     left_eye = points[eye_front_left_index] - points[eye_back_left_index]
+    left_eye = (0, left_eye[1], left_eye[2])
+    
     right_eye_degree = GetDegreeBetweenVectorXYPlane(right_eye)
     left_eye_degree = GetDegreeBetweenVectorXYPlane(left_eye)
+
+    if right_eye_degree < 0:
+        print("right eye degree is negative" + right_eye)
+    if left_eye_degree < 0:
+        print("left eye degree is negative: " + left_eye)
 
     return right_eye_degree + left_eye_degree
 
 def GetBrowBetween(points):
-    right_brow = points[brow_arch_right_indexs[0]] + points[brow_arch_right_indexs[1]]
-    left_brow = points[brow_arch_left_indexs[0]] + points[brow_arch_left_indexs[1]]
+    right_brow = points[brow_start_right_indexs[0]] + points[brow_start_right_indexs[1]]
+    left_brow = points[brow_start_left_indexs[0]] + points[brow_start_left_indexs[1]]
     return GetLength(right_brow, left_brow)
 
 def GetBrowFront(points):
@@ -166,19 +212,19 @@ def GetBrowBack(points):
 def GetBrowDegree(points):
     right_brow = points[brow_start_right_indexs[0]] - points[brow_end_right_indexs[0]]
     left_brow = points[brow_start_left_indexs[0]] - points[brow_end_left_indexs[0]]
+    right_brow = (0, right_brow[1], right_brow[2])
+    left_brow = (0, left_brow[1], left_brow[2])
 
     return GetDegreeBetweenVectorXYPlane(right_brow) + GetDegreeBetweenVectorXYPlane(left_brow)
 
 def GetBrowThickness(points):
     right_fronts = GetLength(points[brow_start_right_indexs[0]], points[brow_start_right_indexs[1]])
     right_archs = GetLength(points[brow_arch_right_indexs[0]], points[brow_arch_right_indexs[1]])
-    right_ends = GetLength(points[brow_end_right_indexs[0]], points[brow_end_right_indexs[1]])
 
     left_fronts = GetLength(points[brow_start_left_indexs[0]], points[brow_start_left_indexs[1]])
     left_archs = GetLength(points[brow_arch_left_indexs[0]], points[brow_arch_left_indexs[1]])
-    left_ends = GetLength(points[brow_end_left_indexs[0]], points[brow_end_left_indexs[1]])
 
-    return right_fronts + right_archs + right_ends + left_fronts + left_archs + left_ends
+    return right_fronts + right_archs + left_fronts + left_archs
 
 def GetBrowShape(points):
     right_arch = points[brow_arch_right_indexs[0]] + points[brow_arch_right_indexs[1]]
@@ -204,6 +250,11 @@ def GetNoseBridgeThickness(points):
     nose_bridge_right = points[nose_bridge_indexs] - points[nose_bridge_right_indexs]
     nose_bridge_left = points[nose_bridge_indexs] - points[nose_bridge_left_indexs]
     return GetVectorLength(nose_bridge_right) + GetVectorLength(nose_bridge_left)
+
+def GetNoseEndSharpness(points):
+    
+    nose_end = points[nose_end_index] - points[nose_bridge_indexs[-1]]
+    return GetVectorLength(nose_end)
 
 def GetNoseAlar(points):
     nose_right = points[nose_right_index] - points[nose_bridge_indexs[-1]]
@@ -249,34 +300,37 @@ def GetJawPosition(points):
 def ExtractFeatures(points, colors):
     dict = {}
     
-    print('Extracting Eye values...')
-    dict.update({"eyeBetween": GetEyeBetween(points)})
-    dict.update({"eyeFront": GetEyeFront(points)})
-    dict.update({"eyeBack": GetEyeBack(points)})
-    dict.update({"eyeAbove": GetEyeAbove(points)})
-    dict.update({"eyeBelow": GetEyeBelow(points)})
-    dict.update({"eyeDegree": GetEyeDegree(points)})
+    # filter out the outliers
+    symmetry = GetSymmetry(points)
+    if symmetry > 0.1:
+        print("out of Symeetry: " + f'{symmetry}')
+        return None
 
-    dict.update({"browBetween": GetBrowBetween(points)})
-    dict.update({"browFront": GetBrowFront(points)})
-    dict.update({"browBack": GetBrowBack(points)})
-    print('Extracting Brow values...')
-    dict.update({"browDegree": GetBrowDegree(points)})
-    dict.update({"browThickness": GetBrowThickness(points)})
-    dict.update({"browShape": GetBrowShape(points)})
+    # dict.update({"symmetry": symmetry})
+    # dict.update({"eyeBetween": GetEyeBetween(points)})
+    # dict.update({"eyeFront": GetEyeFront(points)})
+    # dict.update({"eyeBack": GetEyeBack(points)})
+    # dict.update({"eyeLength": GetEyeLength(points)})
+    # dict.update({"eyeAbove": GetEyeAbove(points)})
+    # dict.update({"eyeBelow": GetEyeBelow(points)})
+    # dict.update({"eyeDegree": GetEyeDegree(points)})
 
-    print('Extracting Nose values...')
-    dict.update({"noseLength": GetNoseLength(points)})
-    dict.update({"noseBridgeThickness": GetNoseBridgeThickness(points)})
-    dict.update({"noseAlar": GetNoseAlar(points)})
-    dict.update({"philtrum": GetPhiltrum(points)})
+    # dict.update({"browBetween": GetBrowBetween(points)})
+    # dict.update({"browFront": GetBrowFront(points)})
+    # dict.update({"browBack": GetBrowBack(points)})
+    # dict.update({"browDegree": GetBrowDegree(points)})
+    # dict.update({"browThickness": GetBrowThickness(points)})
+    # dict.update({"browShape": GetBrowShape(points)})
 
-    print('Extracting Lip values...')
-    dict.update({"lipLength": GetLipLength(points)})
-    dict.update({"upperLipThickness": GetUpperLipThickness(points)})
-    dict.update({"lowerLipThickness": GetLowerLipThickness(points)})
+    # dict.update({"noseLength": GetNoseLength(points)})
+    # dict.update({"noseBridgeThickness": GetNoseBridgeThickness(points)})
+    # dict.update({"noseAlar": GetNoseAlar(points)})
+    # dict.update({"philtrum": GetPhiltrum(points)})
 
-    print('Extracting Forehead values...')
+    # dict.update({"lipLength": GetLipLength(points)})
+    # dict.update({"upperLipThickness": GetUpperLipThickness(points)})
+    # dict.update({"lowerLipThickness": GetLowerLipThickness(points)})
+
     dict.update({"foreheadLength": GetForeheadLength(points)})
 
     dict.update({"chinLength": GetChinLength(points)})
@@ -284,7 +338,6 @@ def ExtractFeatures(points, colors):
     dict.update({"jaw": GetJaw(points)})
     dict.update({"jawPosition": GetJawPosition(points)})
 
-    print('Extracting Skin and Lip colors...')
     dict.update({"skinColor": GetSkinColor(colors)})
     dict.update({"lipColor": GetLipColor(colors)})
     return dict
@@ -295,14 +348,13 @@ def printFeatures(dicts):
 
 def SaveValues(points_path, export_path):
     try:
-        print(f'Loading data from {points_path}...')
         data = np.load(points_path, allow_pickle=True)
         points = data[0][0]
         colors = data[1][0]
 
-        print('Extracting features...')
         values = ExtractFeatures(points, colors)
-        print('Features extracted')
+        if values is None:
+            return
 
         if not os.path.exists(export_path):
             os.makedirs(export_path)
@@ -310,9 +362,6 @@ def SaveValues(points_path, export_path):
         export_file_path = f'{export_path}/{points_path.split("/")[-1].split(".")[0]}.pickle'
         with open(export_file_path, 'wb') as handle:
             pickle.dump(values, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        
-        print(f'Values saved to {export_file_path}')
-        printFeatures(values)
     except Exception as e:
         print(f'An error occurred: {e}')
 
@@ -321,12 +370,4 @@ def SaveBatchValues(path, export_path):
     for file in os.listdir(path):
         if file.endswith('.npy'):
             SaveValues(f'{path}/{file}', export_path)
-
-
-# path = 'FaceOn/data/combined_Normalized/part1/_0_0_20161219140627985_combined.npy'
-# export_path = 'FaceOn/data/numbers/part1'
-# SaveValues(path, export_path)
-
-SaveBatchValues('FaceOn/data/combined_Normalized/part1', 'FaceOn/data/numbers/part1')
-SaveBatchValues('FaceOn/data/combined_Normalized/part2', 'FaceOn/data/numbers/part2')
-SaveBatchValues('FaceOn/data/combined_Normalized/part3', 'FaceOn/data/numbers/part3')
+            print(f'{file} saved')

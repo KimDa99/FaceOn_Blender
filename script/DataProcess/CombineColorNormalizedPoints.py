@@ -17,8 +17,8 @@ def combineTwoNp(normalizedPoints_file_path, color_file_path):
 
 def combineNormalizedPoints( normalizedPoints_files_path, color_files_path, target_path):
     for files in os.listdir(normalizedPoints_files_path):
-        if files.endswith('_normalized.npy'):
-            base_filename = files[:files.rfind('_')]
+        if files.endswith('.npy'):
+            base_filename = files[:files.rfind('.')]
             color_file = findFileWithSuffix(color_files_path, f'{base_filename}_color.npy')
             if color_file is None:
                 print(f'Error: No color file found for {files}')
@@ -26,9 +26,5 @@ def combineNormalizedPoints( normalizedPoints_files_path, color_files_path, targ
             combined = combineTwoNp(f'{normalizedPoints_files_path}/{files}', f'{color_files_path}/{color_file}')
             if not os.path.exists(target_path):
                 os.makedirs(target_path)
-            np.save(f'{target_path}/{base_filename}_combined.npy', combined)
-            print(f'{target_path}/{base_filename}_combined.npy saved')
-
-#combineNormalizedPoints('FaceOn/data/normalized/part1', 'FaceOn/data/landmarks/part1', 'FaceOn/data/combined_Normalized/part1')
-combineNormalizedPoints('FaceOn/data/normalized/part2', 'FaceOn/data/landmarks/part2', 'FaceOn/data/combined_Normalized/part2')
-combineNormalizedPoints('FaceOn/data/normalized/part3', 'FaceOn/data/landmarks/part3', 'FaceOn/data/combined_Normalized/part3')
+            np.save(f'{target_path}/{base_filename}.npy', combined)
+            print(f'{target_path}/{base_filename}.npy saved')
