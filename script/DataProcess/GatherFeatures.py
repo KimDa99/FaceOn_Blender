@@ -32,6 +32,8 @@ upperLipThickness = []
 lowerLipThickness = []
 
 foreheadLength = []
+midfaceLength = []
+
 chinLength = []
 chinWidth = []
 
@@ -66,9 +68,9 @@ def LoadValues(path):
     # browThickness.append(dicts['browThickness'])
     # browShape.append(dicts['browShape'])
 
-    noseLength.append(dicts['noseLength'])
-    noseBridgeThickness.append(dicts['noseBridgeThickness'])
-    noseHeadThickness.append(dicts['noseHeadThickness'])
+    # noseLength.append(dicts['noseLength'])
+    # noseBridgeThickness.append(dicts['noseBridgeThickness'])
+    # noseHeadThickness.append(dicts['noseHeadThickness'])
     # noseAlar.append(dicts['noseAlar'])
     # philtrum.append(dicts['philtrum'])
 
@@ -77,6 +79,7 @@ def LoadValues(path):
     # lowerLipThickness.append(dicts['lowerLipThickness'])
 
     # foreheadLength.append(dicts['foreheadLength'])
+    midfaceLength.append(dicts['midfaceLength'])
     # chinLength.append(dicts['chinLength'])
     # chinWidth.append(dicts['chinWidth'])
 
@@ -112,9 +115,9 @@ def SaveValues(pathName = 'FaceOn/data/numbers/All.pickle'):
         # 'browThickness': browThickness,
         # 'browShape': browShape,
 
-        'noseLength': noseLength,
-        'noseBridgeThickness': noseBridgeThickness,
-        'noseHeadThickness': noseHeadThickness,
+        # 'noseLength': noseLength,
+        # 'noseBridgeThickness': noseBridgeThickness,
+        # 'noseHeadThickness': noseHeadThickness,
         # 'noseAlar': noseAlar,
         # 'philtrum': philtrum,
 
@@ -123,6 +126,8 @@ def SaveValues(pathName = 'FaceOn/data/numbers/All.pickle'):
         # 'lowerLipThickness': lowerLipThickness,
 
         # 'foreheadLength': foreheadLength,
+        'midfaceLength': midfaceLength,
+
         # 'chinLength': chinLength,
         # 'chinWidth': chinWidth,
 

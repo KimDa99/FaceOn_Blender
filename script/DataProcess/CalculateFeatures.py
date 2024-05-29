@@ -67,6 +67,13 @@ nose_end_index = 94
 nose_end_middle_index = 19
 nose_start_index = 168
 
+# middle face
+midFace_start_indexes = [31, 228,229,230,231,
+                         232,233,245,122,6,
+                         351,465,453,452,451,
+                         450,449,448,261]
+midFace_End_indexes = [ 207,216,92,165,167,164,393,391,322,436,427]
+
 # forehead
 forehead_end_indexs = [107, 9, 136]
 forehead_start_indexs = [109, 10, 338]
@@ -311,6 +318,12 @@ def GetUpperLipThickness(points):
 def GetLowerLipThickness(points):
     return GetVectorLength(points[bottom_lip_top_index] - points[bottom_lip_bottom_index])
 
+
+def GetMidFaceLength(points):
+    startPoint = points[midFace_start_indexes].mean(axis=0)
+    endPoint = points[midFace_End_indexes].mean(axis=0)
+    return startPoint[2] - endPoint[2]
+
 def GetForeheadLength(points):
     forehead_vector = points[forehead_start_indexs] - points[forehead_end_indexs]
     return GetVectorLength(forehead_vector)
@@ -396,9 +409,9 @@ def ExtractFeatures(points, colors):
     # dict.update({"browThickness": GetBrowThickness(points)})
     # dict.update({"browShape": GetBrowShape(points)})
 
-    dict.update({"noseLength": GetNoseLength(points)})
-    dict.update({"noseBridgeThickness": GetNoseBridgeThickness(points)})
-    dict.update({"noseHeadThickness": GetNoseHeadThickness(points)})
+    # dict.update({"noseLength": GetNoseLength(points)})
+    # dict.update({"noseBridgeThickness": GetNoseBridgeThickness(points)})
+    # dict.update({"noseHeadThickness": GetNoseHeadThickness(points)})
     # dict.update({"noseAlar": GetNoseAlar(points)})
     # dict.update({"philtrum": GetPhiltrum(points)})
 
@@ -407,6 +420,8 @@ def ExtractFeatures(points, colors):
     # dict.update({"lowerLipThickness": GetLowerLipThickness(points)})
 
     # dict.update({"foreheadLength": GetForeheadLength(points)})
+    dict.update({"midfaceLength": GetMidFaceLength(points)})
+    print(f"midfaceLength: {dict['midfaceLength']}")
 
     # dict.update({"chinLength": GetChinLength(points)})
     # dict.update({"chinWidth": GetChinWidth(points)})
