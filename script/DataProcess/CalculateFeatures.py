@@ -119,6 +119,10 @@ def GetMaxAngleIndex(points):
 
     return max_angle_index
 
+def GetProportion(point, standard_point0, standard_point1):
+    foot_of_perpendicular = standard_point0 + np.dot(point - standard_point0, standard_point1 - standard_point0) / np.dot(standard_point1 - standard_point0, standard_point1 - standard_point0) * (standard_point1 - standard_point0)
+    return GetLength(foot_of_perpendicular, standard_point0) / GetLength(standard_point0, standard_point1)
+
 def GetSymmetry(points):
     right_points = points[faceOval_right_indexs]
     left_points = points[faceOval_left_indexs]
@@ -298,41 +302,53 @@ def GetForeheadLength(points):
 def GetChinLength(points):
     return GetVectorLength(points[bottom_lip_bottom_index] - points[chin_end_index])
 
+def GetJawPointsIndex(points):
+    right_jaw_points = points[jaw_right_indexs]
+    right_jaw_points = right_jaw_points[:,1:]
+    right_jaw_point_index = GetMaxAngleIndex(right_jaw_points)
+    right_jaw_point_index = jaw_right_indexs[right_jaw_point_index]
+
+    left_jaw_points = points[jaw_left_indexs]
+    left_jaw_points = left_jaw_points[:,1:]
+    left_jaw_point_index = GetMaxAngleIndex(left_jaw_points)
+    left_jaw_point_index = jaw_left_indexs[left_jaw_point_index]
+
+    return right_jaw_point_index, left_jaw_point_index
+
+
 def GetJawWide(points):
     
     chin = points[jaw_right_indexs[0]][1:]
     temple = points[jaw_right_indexs[-1]][1:]
 
-    jaw_points = points[jaw_right_indexs]
-    jaw_points = jaw_points[:,1:]
-    
-    jaw_point_index = GetMaxAngleIndex(jaw_points)
-    jaw_point_index = jaw_right_indexs[jaw_point_index]
+    right_jaw_point_index, left_jaw_point_index = GetJawPointsIndex(points)
 
-    jaw = points[jaw_point_index][1:]
+    jaw = points[right_jaw_point_index][1:]
     right_jaw = GetLengthBetweenPointLine(jaw, chin, temple)
 
 
     chin = points[jaw_left_indexs[0]][1:]
     temple = points[jaw_left_indexs[-1]][1:]
 
-    jaw_points = points[jaw_left_indexs]
-    jaw_points = jaw_points[:,1:]
-    
-    jaw_point_index = GetMaxAngleIndex(jaw_points)
-    jaw_point_index = jaw_left_indexs[jaw_point_index]
-
-    jaw = points[jaw_point_index][1:]
+    jaw = points[left_jaw_point_index][1:]
     left_jaw = GetLengthBetweenPointLine(jaw, chin, temple)
 
     return right_jaw + left_jaw
 
 def GetJawPosition(points):
-    right_jaw = points[chin_end_index] - points[jaw_right_indexs[0]]
-    left_jaw = points[chin_end_index] - points[jaw_left_indexs[0]]
-    right_jaw = right_jaw[2]
-    left_jaw = left_jaw[2]
-    return right_jaw + left_jaw
+    right_jaw_point_index, left_jaw_point_index = GetJawPointsIndex(points)
+
+    right_jaw = points[right_jaw_point_index][1:]
+    right_temple = points[jaw_right_indexs[0]][1:]
+    chin = points[jaw_right_indexs[-1]][1:]
+    right_proportion = GetProportion(right_jaw, chin, right_temple)
+
+    left_jaw = points[left_jaw_point_index][1:]
+    left_temple = points[jaw_left_indexs[0]][1:]
+    chin = points[jaw_left_indexs[-1]][1:]
+    left_proportion = GetProportion(left_jaw, chin, left_temple)
+
+    return right_proportion + left_proportion
 
 def ExtractFeatures(points, colors):
     dict = {}
@@ -372,8 +388,8 @@ def ExtractFeatures(points, colors):
 
     # dict.update({"chinLength": GetChinLength(points)})
 
-    dict.update({"jawWide": GetJawWide(points)})
-    # dict.update({"jawPosition": GetJawPosition(points)})
+    # dict.update({"jawWide": GetJawWide(points)})
+    dict.update({"jawPosition": GetJawPosition(points)})
 
     # dict.update({"skinColor": GetSkinColor(colors)})
     # dict.update({"lipColor": GetLipColor(colors)})
