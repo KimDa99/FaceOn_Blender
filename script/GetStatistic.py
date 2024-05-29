@@ -52,12 +52,18 @@ def GetMinMaxIndexes(values, n=5):
     for i in range(n):
         min_val = np.min(values)
         max_val = np.max(values)
+
         min_index = values.index(min_val)
         max_index = values.index(max_val)
+
         min_indexes.append(min_index)
         max_indexes.append(max_index)
-        values[min_index] = 0.5
-        values[max_index] = 0.5
+
+        copiedValues = values.copy()
+        copiedValues = np.array(copiedValues)
+        mean = copiedValues.mean()
+        values[min_index] = mean
+        values[max_index] = mean
 
     return min_indexes, max_indexes
 
@@ -95,14 +101,14 @@ def GetImagePath(file_name):
 def SaveImage(source_path, target_path, order = -1):
     img = cv.imread(source_path)
     source_name = source_path.split('/')[-1]
+    if img is None:
+        print(f'Image is None: {source_path}')
+        return
 
     if not os.path.exists(target_path):
         os.makedirs(target_path)
 
-    if order != -1:
-        target_path = target_path + '/' + str(order)+'.jpg'
-    else:
-        target_path = target_path + '/' + source_name
+    target_path = target_path + '/' + str(order) + '_'+source_name
 
     cv.imwrite(target_path, img)
 
@@ -110,18 +116,32 @@ def SaveImage(source_path, target_path, order = -1):
 dicts = load_dict('FaceOn/data/Gathered_Features.pickle')
 dicts = dicts.copy()
 
-print(dicts.keys())
+def findSameValueIndexes(values):
+    indexes = []
+    tmp = values[0]
+    for i in range(1, len(values)):
+        if values[i] == tmp:
+            indexes.append(i)
+        else:
+            tmp = values[i]
+    return indexes
+
+# print(dicts.keys())
+# print(dicts['fileNames'][:100])
+print(findSameValueIndexes(dicts['fileNames']))
 for key in dicts:
     if key == 'fileNames' or key == 'skinColor' or key == 'lipColor' or key == 'symmetry':
         continue
     
-
     # showPlt(dicts[key], key)
     # values = removeOutliersNoises(dicts[key])
+    values = dicts[key]
     values = normalizeData(values)
     # showPlt(values, f'Normalized {key}')
 
-    n = 50
+    n = (1.5/100) * len(values)
+    n = int(n)
+    print(n)
     min_indexes, max_indexes = GetMinMaxIndexes(values, n)
 
     min_paths = []
