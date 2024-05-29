@@ -33,7 +33,7 @@ lowerLipThickness = []
 foreheadLength = []
 chinLength = []
 
-jaw = []
+jawWide = []
 jawPosition = []
 
 skinColor = []
@@ -73,14 +73,14 @@ def LoadValues(path):
     # upperLipThickness.append(dicts['upperLipThickness'])
     # lowerLipThickness.append(dicts['lowerLipThickness'])
 
-    foreheadLength.append(dicts['foreheadLength'])
-    chinLength.append(dicts['chinLength'])
+    # foreheadLength.append(dicts['foreheadLength'])
+    # chinLength.append(dicts['chinLength'])
 
-    jaw.append(dicts['jaw'])
-    jawPosition.append(dicts['jawPosition'])
+    jawWide.append(dicts['jawWide'])
+    # jawPosition.append(dicts['jawPosition'])
 
-    skinColor.append(dicts['skinColor'])
-    lipColor.append(dicts['lipColor'])
+    # skinColor.append(dicts['skinColor'])
+    # lipColor.append(dicts['lipColor'])
 
 def LoadBatch(path):
     for file in os.listdir(path):
@@ -117,14 +117,14 @@ def SaveValues(pathName = 'FaceOn/data/numbers/All.pickle'):
         # 'upperLipThickness': upperLipThickness,
         # 'lowerLipThickness': lowerLipThickness,
 
-        'foreheadLength': foreheadLength,
-        'chinLength': chinLength,
+        # 'foreheadLength': foreheadLength,
+        # 'chinLength': chinLength,
 
-        'jaw': jaw,
-        'jawPosition': jawPosition,
+        'jawWide': jawWide,
+        # 'jawPosition': jawPosition,
 
-        'skinColor': skinColor,
-        'lipColor': lipColor
+        # 'skinColor': skinColor,
+        # 'lipColor': lipColor
     }
 
     with open(pathName, 'wb') as handle:

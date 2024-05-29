@@ -71,8 +71,8 @@ chin_end_right_indexs = [149, 176, 148]
 chin_end_left_indexs = [378, 400, 377]
 
 # jaw
-jaw_right_indexs = [132, 58, 172]
-jaw_left_indexs = [361, 288, 397]
+jaw_right_indexs = [127, 234, 93, 132, 58, 172, 136, 150, 149]
+jaw_left_indexs = [356, 454, 323, 361, 288, 397, 365, 379, 378]
 
 # temple
 temple_right_index = 127
@@ -101,6 +101,23 @@ def GetLengthBetweenPointLine(point, line_point0, line_point1):
 
 def GetDegreeBetweenVectorXYPlane(vector):
     return np.arccos(vector[2] / np.linalg.norm(vector))
+
+def GetMaxAngleIndex(points):
+    max_angle = 0
+    max_angle_index = 0
+    # get dy/dx
+    for i in range(1,len(points)-2):
+        vec1 = points[i] - points[i-1]
+        vec2 = points[i+1] - points[i]
+        
+        #get between angle
+        angle = np.arccos(np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2)))
+
+        if angle > max_angle:
+            max_angle = angle
+            max_angle_index = i
+
+    return max_angle_index
 
 def GetSymmetry(points):
     right_points = points[faceOval_right_indexs]
@@ -212,8 +229,8 @@ def GetBrowBack(points):
 def GetBrowDegree(points):
     right_brow = points[brow_start_right_indexs[0]] - points[brow_end_right_indexs[0]]
     left_brow = points[brow_start_left_indexs[0]] - points[brow_end_left_indexs[0]]
-    right_brow = (0, right_brow[1], right_brow[2])
-    left_brow = (0, left_brow[1], left_brow[2])
+    right_brow[0] = 0
+    left_brow[0] = 0
 
     return GetDegreeBetweenVectorXYPlane(right_brow) + GetDegreeBetweenVectorXYPlane(left_brow)
 
@@ -252,7 +269,7 @@ def GetNoseBridgeThickness(points):
     return GetVectorLength(nose_bridge_right) + GetVectorLength(nose_bridge_left)
 
 def GetNoseEndSharpness(points):
-    
+
     nose_end = points[nose_end_index] - points[nose_bridge_indexs[-1]]
     return GetVectorLength(nose_end)
 
@@ -281,14 +298,34 @@ def GetForeheadLength(points):
 def GetChinLength(points):
     return GetVectorLength(points[bottom_lip_bottom_index] - points[chin_end_index])
 
-def GetJaw(points):
-    right_jaw = points[jaw_right_indexs[0]] + points[jaw_right_indexs[1]] + points[jaw_right_indexs[2]]
-    jaw_right = GetLengthBetweenPointLine( right_jaw, points[chin_end_index], points[temple_right_index])
+def GetJawWide(points):
+    
+    chin = points[jaw_right_indexs[0]][1:]
+    temple = points[jaw_right_indexs[-1]][1:]
 
-    left_jaw = points[jaw_left_indexs[0]] + points[jaw_left_indexs[1]] + points[jaw_left_indexs[2]]
-    jaw_left = GetLengthBetweenPointLine( left_jaw, points[chin_end_index], points[temple_left_index])
+    jaw_points = points[jaw_right_indexs]
+    jaw_points = jaw_points[:,1:]
+    
+    jaw_point_index = GetMaxAngleIndex(jaw_points)
+    jaw_point_index = jaw_right_indexs[jaw_point_index]
 
-    return jaw_right + jaw_left
+    jaw = points[jaw_point_index][1:]
+    right_jaw = GetLengthBetweenPointLine(jaw, chin, temple)
+
+
+    chin = points[jaw_left_indexs[0]][1:]
+    temple = points[jaw_left_indexs[-1]][1:]
+
+    jaw_points = points[jaw_left_indexs]
+    jaw_points = jaw_points[:,1:]
+    
+    jaw_point_index = GetMaxAngleIndex(jaw_points)
+    jaw_point_index = jaw_left_indexs[jaw_point_index]
+
+    jaw = points[jaw_point_index][1:]
+    left_jaw = GetLengthBetweenPointLine(jaw, chin, temple)
+
+    return right_jaw + left_jaw
 
 def GetJawPosition(points):
     right_jaw = points[chin_end_index] - points[jaw_right_indexs[0]]
@@ -331,15 +368,15 @@ def ExtractFeatures(points, colors):
     # dict.update({"upperLipThickness": GetUpperLipThickness(points)})
     # dict.update({"lowerLipThickness": GetLowerLipThickness(points)})
 
-    dict.update({"foreheadLength": GetForeheadLength(points)})
+    # dict.update({"foreheadLength": GetForeheadLength(points)})
 
-    dict.update({"chinLength": GetChinLength(points)})
+    # dict.update({"chinLength": GetChinLength(points)})
 
-    dict.update({"jaw": GetJaw(points)})
-    dict.update({"jawPosition": GetJawPosition(points)})
+    dict.update({"jawWide": GetJawWide(points)})
+    # dict.update({"jawPosition": GetJawPosition(points)})
 
-    dict.update({"skinColor": GetSkinColor(colors)})
-    dict.update({"lipColor": GetLipColor(colors)})
+    # dict.update({"skinColor": GetSkinColor(colors)})
+    # dict.update({"lipColor": GetLipColor(colors)})
     return dict
 
 def printFeatures(dicts):
@@ -362,6 +399,7 @@ def SaveValues(points_path, export_path):
         export_file_path = f'{export_path}/{points_path.split("/")[-1].split(".")[0]}.pickle'
         with open(export_file_path, 'wb') as handle:
             pickle.dump(values, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f'{export_file_path} saved')
     except Exception as e:
         print(f'An error occurred: {e}')
 
@@ -370,4 +408,3 @@ def SaveBatchValues(path, export_path):
     for file in os.listdir(path):
         if file.endswith('.npy'):
             SaveValues(f'{path}/{file}', export_path)
-            print(f'{file} saved')
