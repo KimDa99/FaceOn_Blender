@@ -113,69 +113,126 @@ def SaveImage(source_path, target_path, order = -1):
     cv.imwrite(target_path, img)
 
 
-dicts = load_dict('FaceOn/data/Gathered_Features.pickle')
+dicts = load_dict('FaceOn/data/xyzNormalized/Gathered_Features.pickle')
 dicts = dicts.copy()
 
-def findSameValueIndexes(values):
-    indexes = []
-    tmp = values[0]
-    for i in range(1, len(values)):
-        if values[i] == tmp:
-            indexes.append(i)
+
+def GetMostMeanPictures(dicts, percent = 0.3):
+    meanPicturesFileNames = []
+    for key in dicts:
+        if key == 'fileNames' or key == 'skinColor' or key == 'lipColor' or key == 'symmetry':
+            continue
+        
+        values = dicts[key]
+        values = normalizeData(values)
+
+        # get median pictures indexes if it is in the range
+        print(len(values))
+        n =  (0.5 - percent)* len(values)
+        n = int(n)
+        print(n)
+        min_indexes, max_indexes = GetMinMaxIndexes(values, n)
+        indexes = [i for i in range(len(values))]
+        print(f'len: {len(indexes)}')
+        indexes = [i for i in indexes if i not in min_indexes and i not in max_indexes]
+        print(f'len: {len(indexes)}')
+
+        fileNames = [dicts['fileNames'][i] for i in indexes]
+        print(f'len: {len(fileNames)}')
+        if meanPicturesFileNames == []:
+            meanPicturesFileNames = fileNames
         else:
-            tmp = values[i]
-    return indexes
-
-# print(dicts.keys())
-# print(dicts['fileNames'][:100])
-print(findSameValueIndexes(dicts['fileNames']))
-for key in dicts:
-    if key == 'fileNames' or key == 'skinColor' or key == 'lipColor' or key == 'symmetry':
-        continue
+            #only if the file name is in the previous list
+            meanPicturesFileNames = [name for name in meanPicturesFileNames if name in fileNames]
+        
+        print(f'key: {key}, len: {len(meanPicturesFileNames)}')
     
-    # showPlt(dicts[key], key)
-    # values = removeOutliersNoises(dicts[key])
-    values = dicts[key]
-    values = normalizeData(values)
-    # showPlt(values, f'Normalized {key}')
-
-    n = (1/100) * len(values)
-    n = int(n)
-    print(n)
-    min_indexes, max_indexes = GetMinMaxIndexes(values, n)
-
-    min_paths = []
-    max_paths = []
-
-    path = 'FaceOn/data/examples/'+ key
-    min_path = path + '/min'
-    max_path = path + '/max'
+    return meanPicturesFileNames
     
-    if not os.path.exists('FaceOn/data/examples'):
-        os.makedirs('FaceOn/data/examples')
+# meanPicturesFileNames = GetMostMeanPictures(dicts)
+# for i in range(len(meanPicturesFileNames)):
+#     SaveImage(GetImagePath(meanPicturesFileNames[i]), 'FaceOn/data/xyzNormalized/examples/mean', i)
 
-    # for i in range(n):
-    #     SaveImage(GetImagePath(dicts['fileNames'][min_indexes[i]]), min_path, i)
-    #     SaveImage(GetImagePath(dicts['fileNames'][max_indexes[i]]), max_path, i)
+def GetMeanMaxMinValues(dicts):
+    meanValues = {}
+    maxValues = {}
+    minValues = {}
+    for key in dicts:
+        if key == 'fileNames' or key == 'skinColor' or key == 'lipColor' or key == 'symmetry':
+            continue
+        
+        values = dicts[key]
+
+        meanValues[key] = np.median(values)
+        
+        # Get 2% of the values' mean
+        n = 0.02 * len(values)
+        n = int(n)
+        vals = values.copy()
+        min_indexes, max_indexes = GetMinMaxIndexes(vals, n)
+        # print(f'{key} min_indexes: {min_indexes}')
+        # print(f'{key} max_indexes: {max_indexes}')
+
+        min = [values[i] for i in min_indexes]
+        minValues[key] = np.median(min)
+
+        max = [values[i] for i in max_indexes]
+        maxValues[key] = np.median(max)
+        print(f'{key} mean: {meanValues[key]}, max: {maxValues[key]}, min: {minValues[key]}')
     
-    min_file_names = [dicts['fileNames'][i] for i in min_indexes]
-    max_file_names = [dicts['fileNames'][i] for i in max_indexes]
+    return meanValues, maxValues, minValues
 
-    # save min and max file names as numpy files
-    target_path = 'FaceOn/data/min_max_file_names/'
-    if not os.path.exists(target_path):
-        os.makedirs(target_path)
+meanValues, maxValues, minValues = GetMeanMaxMinValues(dicts)
+# save in txt file the mean, max and min values
+with open('FaceOn/data/xyzNormalized/mean_max_min_02.txt', 'w') as f:
+    for key in meanValues:
+        f.write(f'{key}: {meanValues[key]}, {maxValues[key]}, {minValues[key]}\n')
 
-    target_path = 'FaceOn/data/min_max_file_names/' + key + '/'
-    if not os.path.exists(target_path):
-        os.makedirs(target_path)
 
-    np.save(target_path + 'min.npy', min_file_names)
-    np.save(target_path + 'max.npy', max_file_names)
+# for key in dicts:
+#     if key == 'fileNames' or key == 'skinColor' or key == 'lipColor' or key == 'symmetry':
+#         continue
+    
+#     values = dicts[key]
+#     values = normalizeData(values)
 
-    # showPlt(dicts[key], key)
-    # values = removeOutliersNoises(dicts[key])        
+#     n = (1/100) * len(values)
+#     n = int(n)
+#     print(n)
+#     min_indexes, max_indexes = GetMinMaxIndexes(values, n)
 
-    # showPlt(values, f'Normalized {key}')
+#     min_paths = []
+#     max_paths = []
 
-    cv.waitKey(0)
+#     path = 'FaceOn/data/xyzNormalized/examples/'+ key
+#     min_path = path + '/min'
+#     max_path = path + '/max'
+    
+#     if not os.path.exists('FaceOn/data/xyzNormalized/examples'):
+#         os.makedirs('FaceOn/data/xyzNormalized/examples')
+
+#     for i in range(n):
+#         SaveImage(GetImagePath(dicts['fileNames'][min_indexes[i]]), min_path, i)
+#         SaveImage(GetImagePath(dicts['fileNames'][max_indexes[i]]), max_path, i)
+    
+#     min_file_names = [dicts['fileNames'][i] for i in min_indexes]
+#     max_file_names = [dicts['fileNames'][i] for i in max_indexes]
+
+#     # save min and max file names as numpy files
+#     target_path = 'FaceOn/data/min_max_file_names/'
+#     if not os.path.exists(target_path):
+#         os.makedirs(target_path)
+
+#     target_path = 'FaceOn/data/min_max_file_names/' + key + '/'
+#     if not os.path.exists(target_path):
+#         os.makedirs(target_path)
+
+#     np.save(target_path + 'min.npy', min_file_names)
+#     np.save(target_path + 'max.npy', max_file_names)
+
+#     showPlt(dicts[key], key)
+#     # values = removeOutliersNoises(dicts[key])        
+
+#     # showPlt(values, f'Normalized {key}')
+
+#     cv.waitKey(0)

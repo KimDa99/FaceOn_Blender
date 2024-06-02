@@ -50,7 +50,7 @@ def SaveMeanInFile(indexes_path='FaceOn/data/min_max_file_names/browArchPosition
             np.save(f'{save_path}/{parts}_{name}_mean_colors.npy', mean_colors)
             print('means are saved')
 
-def SaveBatch(path='FaceOn/data/min_max_file_names', points_path='FaceOn/data/combined_Normalized', save_path='FaceOn/data/means_points_colors'):
+def CaculateSaveBatch(path='FaceOn/data/min_max_file_names', points_path='FaceOn/data/combined_Normalized', save_path='FaceOn/data/means_points_colors'):
     print(path)
     for file in os.listdir(path):
         if os.path.isdir(f'{path}/{file}'):
@@ -75,7 +75,7 @@ def GetTotalMean(points_path='FaceOn/data/combined_Normalized'):
 
     return mean_points, mean_colors
 
-# SaveBatch(save_path='FaceOn/data/means')
-mean_points, mean_colors = GetTotalMean()
-np.save('FaceOn/data/means/total_mean_points.npy', mean_points)
-np.save('FaceOn/data/means/total_mean_colors.npy', mean_colors)
+# CaculateSaveBatch(path='FaceOn/data/xyzNormalized/min_max_file_names', points_path='FaceOn/data/xyzNormalized/combined_Normalized', save_path='FaceOn/data/xyzNormalized/means_points_colors')
+mean_points, mean_colors = GetTotalMean(points_path='FaceOn/data/xyzNormalized/combined_Normalized')
+np.save('FaceOn/data/xyzNormalized/total_mean_points.npy', mean_points)
+np.save('FaceOn/data/xyzNormalized/total_mean_colors.npy', mean_colors)

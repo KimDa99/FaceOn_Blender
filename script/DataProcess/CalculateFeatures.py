@@ -412,12 +412,12 @@ def GetJawPosition(points):
 
     return right_proportion + left_proportion
 
-def ExtractFeatures(points, colors):
+def ExtractFeatures(points, colors, doRemoveOutOfSymmetry= True):
     dict = {}
     
     # filter out the outliers
     symmetry = GetSymmetry(points)
-    if symmetry > 0.1:
+    if symmetry > 0.1 and doRemoveOutOfSymmetry:
         print("out of Symeetry: " + f'{symmetry}')
         return None
 
@@ -463,6 +463,7 @@ def ExtractFeatures(points, colors):
 
     dict.update({"skinColor": GetSkinColor(colors)})
     dict.update({"lipColor": GetLipColor(colors)})
+    print(f'lipColor: {GetLipColor(colors)}')
     return dict
 
 def printFeatures(dicts):

@@ -12,12 +12,6 @@ def rotation_matrix(axis, theta):
                      [2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc]])
 
 def normalizePoints(points):
-    foreHead_point = points[10]
-    chin_point = points[152]
-
-    left_eye_point = points[263]
-    right_eye_point = points[33]
-
     # make points 152 origin (0,0,0)
     points -= points[152]
 
@@ -49,10 +43,9 @@ def normalizePoints(points):
     points[:, 1] -= np.min(points[:, 1])
     points[:, 2] -= np.min(points[:, 2])
 
-    scaling_factor = np.max(points[:, 1])
-    points[:, 0] /= scaling_factor
-    points[:, 1] /= scaling_factor
-    points[:, 2] /= scaling_factor
+    points[:, 0] /= np.max(points[:, 0])
+    points[:, 1] /= np.max(points[:, 1])
+    points[:, 2] /= np.max(points[:, 2])
 
     return points
 

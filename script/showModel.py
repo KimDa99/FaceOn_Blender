@@ -52,7 +52,7 @@ def CreateAnimation(points, colors, triangles, name):
 
     print("Creating the animation...")
     # Create the animation
-    ani = FuncAnimation(fig, update, frames=np.arange(0, 360, 1), interval=50)
+    ani = FuncAnimation(fig, update, frames=np.arange(0, 90, 1), interval=50)
 
     print("Saving the video...")
     # Save the animation as a video
@@ -83,4 +83,4 @@ def CreateBatchAnimation(triangles_path='FaceOn/data/face_mesh_triangles.npy', p
             CreateAnimation(points, colors, triangles, name)
             print('Done')
 
-CreateBatchAnimation()
+CreateBatchAnimation(points_path='FaceOn/data/xyzNormalized/means_points_colors', save_path='FaceOn/data/xyzNormalized/3d_Animated')
