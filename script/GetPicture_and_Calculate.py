@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-def Get_names_values_colors(img_path, meanMaxMin_path = 'FaceOn/mean_max_min_02.txt'):
+def Get_names_values_colors(img_path, meanMaxMin_path = 'FaceOn/mean_max_min_02.txt', featureList_path = 'FaceOn/featureList/'):
     print("start")
     import DataProcess.GetLandmarks as GetLandmarks
     # img_path = 'final project/data/me_front.jpg'
@@ -55,14 +55,18 @@ def Get_names_values_colors(img_path, meanMaxMin_path = 'FaceOn/mean_max_min_02.
     print(features)
 
     print("saving features in a txt file")
-    # save picture too
-    image_path = 'FaceOn/data/featuresList/' + img_path.split('/')[-1]
+
+
+    if not os.path.exists(featureList_path):
+        os.makedirs(featureList_path)
+
+    # save pictures
+    image_path = featureList_path + img_path.split('/')[-1]
     import cv2
     cv2.imwrite(image_path, cv2.imread(img_path))
 
-
     # save the features in a txt file
-    path = 'FaceOn/data/featuresList/' + img_path.split('/')[-1].split('.')[0] + '.txt'
+    path = featureList_path + img_path.split('/')[-1].split('.')[0] + '.txt'
     with open(path, 'w') as f:
         f.write('names = [')
         for key in features:
@@ -91,8 +95,15 @@ def Get_names_values_colors(img_path, meanMaxMin_path = 'FaceOn/mean_max_min_02.
 
     
     return names, values, skinColor, lipColor
-    
+
+image_path = 'your_image_path'    
+saving_path = 'your_saving_path'
+Get_names_values_colors(image_path, featureList_path=saving_path)
+
+'''
+# Batch processing example
 path = 'FaceOn/samples'
 for file in os.listdir(path):
     if file.endswith('.jpg'):
-        Get_names_values_colors(f'{path}/{file}')
+        Get_names_values_colors(f'{path}/{file}', featureList_path=saving_path)
+'''
