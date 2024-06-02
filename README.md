@@ -1,38 +1,12 @@
-# FaceOn_UE
-Character Face Customization by extracting face feature from given image in Unreal Engine 5.
+# FaceOn_Blender
+Character Face Customization by extracting face feature from given image in Blender.
 
-0. 머리 가로 길이 = 1
 
-# 눈
-1. 미간
-2. 눈 앞머리 길이
-3. 눈 뒷머리 길이
-4. 눈 위쪽 길이
-5. 눈 아랫쪽 길이
-6. 눈 각도
+https://github.com/KimDa99/FaceOn_UE/assets/91198933/2cc563f6-8b4c-4f1b-8adb-52ae18acb794
 
-# 눈썹
-1. 눈썹 위치
-2. 눈썹 길이
-4. 눈썹 두께
-5. 눈썹 각도
+# How to use
+1. Calculate Feature to extract value of face feature in Script/GetPicture_and_Calculate
+ ![image](https://github.com/KimDa99/FaceOn_Blender/assets/91198933/75cad125-015c-47a9-99ed-5dcb8ef55288)
 
-# 코
-1. 코 길이
-2. 콧대 넓이
-3. 콧망울 넓이
-
-# 입술
-1. 인중 길이
-2. 입 가로 길이
-3. 윗 입술 길이
-4. 아랫입술 길이
-
-# 이마
-1. 이마 높이
-
-# 턱
-1. 턱 길이
-2. 턱끝의 뾰족함
-3. 광대 
-4. 턱뼈
+2. apply on Blender script. copy and paste text file in top of the scripts
+![image](https://github.com/KimDa99/FaceOn_Blender/assets/91198933/8d1e6764-3958-486e-bd22-32dc5f40f53b)
