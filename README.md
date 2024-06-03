@@ -41,4 +41,15 @@ https://github.com/KimDa99/FaceOn_UE/assets/91198933/2cc563f6-8b4c-4f1b-8adb-52a
   
 2. Copy&Paste the value text on Blender script. Select the applying meshes & click 'Run'
    ![image](https://github.com/KimDa99/FaceOn_Blender/assets/91198933/a1720f78-712a-4b17-8e2e-2e9335a9db56)
+   - the Blender script 'ChangeShapeKeyColor.py' is linked inside with 'Model/BasicFace.blend'
+     - if you can not find it, you can use "script\ChangeShapeKeyColor_Blender.py"
+   - Before running the script, you need to select the Face objects to apply.
+
+# How it was made
+1. Get Feature data for standard
+  0. Get Sample images  
+  1. Used Mediapipe for extracting landmarks of faces.
+  2. Calculate face features from landmarks - and find the mean, Max, and min values of each feature to make standards.
+2. Get features of the target, and evaluate how they are close to each criterion value.
+3. Prepare the model with shape keys(morph targets) and map with evaluated value
 
