@@ -47,9 +47,9 @@ https://github.com/KimDa99/FaceOn_UE/assets/91198933/2cc563f6-8b4c-4f1b-8adb-52a
 
 # How it was made
 1. Get Feature data for standard
-  0. Get Sample images  
-  1. Used Mediapipe for extracting landmarks of faces.
-  2. Calculate face features from landmarks - and find the mean, Max, and min values of each feature to make standards.
+  - Get Sample images  
+  - Used Mediapipe for extracting landmarks of faces.
+  - Calculate face features from landmarks - and find the mean, Max, and min values of each feature to make standards.
 2. Get features of the target, and evaluate how they are close to each criterion value.
 3. Prepare the model with shape keys(morph targets) and map with evaluated value
 
