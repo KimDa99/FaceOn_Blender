@@ -53,3 +53,11 @@ https://github.com/KimDa99/FaceOn_UE/assets/91198933/2cc563f6-8b4c-4f1b-8adb-52a
 2. Get features of the target, and evaluate how they are close to each criterion value.
 3. Prepare the model with shape keys(morph targets) and map with evaluated value
 
+# Things to improve
+1. color detection:
+  - skin, lip color
+  - eye Color, brow color
+2. face detection
+  - brow, forehead
+3. apply depth of face
+  - nose, frontal bone, zygomatic bone, and mouth 
